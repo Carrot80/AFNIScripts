@@ -412,7 +412,4 @@ LI.(Time).Wernicke(i,7) = LI_All.(nameFolds{i}).(Time).Wernicke.relActRight;
 
 end
 
-
-
-
 end
