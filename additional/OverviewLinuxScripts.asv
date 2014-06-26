@@ -12,7 +12,7 @@ AVG_keepTrials.m
 Script_SAM_Yuval % Yuvals Vorlage für SAM_Beamforming und für Berechnung von virtuellen Sensoren und Multiplikation von Weights mit AVG 
 
 
-% eigene Skripte in chronologischer Reihenfolge:
+% eigene Skripte in chronologischer Reihenfolge (Kontrollen):
 kh_MRI2Afni.m % 
 kh_SAM_Beamformer % eigenes Skript, um SAM_Beamforming durchzuführen
 SAM_normalize % um SAM_results und Orthogonale Anatomie zu normalisieren in MNI avgT152
@@ -24,6 +24,7 @@ kh_z_scoreNormalizationERF.m
 
 % U-Tst for all controls (group level):
 kh_avg % creating AVG for  all controls (und visuelle Darstellung) => vorher kh_z_scoreNormalizationERF.m 
+
 LR_ttest % U-Test for Left and Right Hemisphere created by Yuval
 
 smaller_timeintervals.m % includes Reduce_ERF2Brain01.m and kh_z_scoreNormalizationERF.m 
@@ -45,14 +46,15 @@ extractfullActROI
 
 
 % U-Test für einzelne Subjects: WICHTIG
-kh_SAM_Beamforming_keeptrials.m % Wiederholung für AVGTrials, mitteln von 10er Gruppen; nur f�r Patienten
-LR_UTest_ind.m % U-Test für verschiedene Zeitintervalle; Linke vs. rechte Hemisphere, hier nohc keine ROIextraction
-UTest_normalize.m % NOrmalisierung in MNI space
-extract_UValuesROI.m % Berechnung des LI-Wertes für ROIs
-kh_collect_LI.m % sammeln der Werte für alle Subjects in einer Matrix
+01_kh_SAM_Beamforming_keeptrials.m % Wiederholung für AVGTrials, mitteln von 10er Gruppen; nur f�r Patienten
+02_LR_UTest_ind.m % U-Test für verschiedene Zeitintervalle; Linke vs. rechte Hemisphere, hier nohc keine ROIextraction
+03_UTest_normalize.m % NOrmalisierung in MNI space
+04_extract_UValuesROI.m % Berechnung des LI-Wertes für ROIs
+05_kh_collect_LI.m % sammeln der Werte für alle Subjects in einer Matrix
+kh_collect_LI_Excel.m
 
-LR_UTest_ind_UValues.m % the same as LR_ttest_ind, except for that I wanted to get stats (z-value)
-
+LR_UTest_ind_UValues.m % the same as LR_ttest_ind, except for that I wanted to get stats (z-value), does not work
+LR_SignedRankAVG10_noise_abs.m
 
 % Sanity Check without NoiseEstimation: U-Test für einzelne Subjects
 kh_SAM_Beamforming_keepttrials_withoutNoiseEst.m % Wiederholung für AVGTrials, mitteln von 10er Gruppen;

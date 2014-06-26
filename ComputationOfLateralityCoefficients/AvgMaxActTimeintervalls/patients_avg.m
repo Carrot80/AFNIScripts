@@ -13,8 +13,6 @@ for i=6:length(nameFolds)
 kh_SAMpatients (Patientpath, nameFolds{i} )
 
 end
-
-
 end
 
 
@@ -44,8 +42,6 @@ vs=ActWgts*avgBL.avg;
 ns=mean(abs(ActWgts),2); 
 vs=vs./repmat(ns,1,size(vs,2));
 
-
-
 cd(strcat(PatientPath, filesep, PatientName))
 
 cfg=[];
@@ -57,7 +53,6 @@ cfg.TR=1/1.01725; % comment if you want to sum up activity of specific time inte
 % VS2Brik(cfg,vs);
 % max(max(vs))
 VS2Brik(cfg,1e+13*abs(vs)); % =>c
- 
 end
 
 

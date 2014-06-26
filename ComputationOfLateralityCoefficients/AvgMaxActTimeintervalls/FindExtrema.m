@@ -2,8 +2,6 @@
 function for_all ()
 
 % function created textfiles for Maxvalue in ROI, zum Ausrechnen des LI's
-
-
     ControlsFolder = '/home/kh/ShareWindows/data/controls/controls_SAM';
 
     DIR = dir (ControlsFolder)
@@ -12,18 +10,13 @@ function for_all ()
     nameFolds(ismember(nameFolds,{'.','..'})) = [];
     Table=[];
 
-    for i= 1:size(nameFolds)
-   
-
-    TimeInt = [.32, .6];
-      
-   [Table]=findextrema(strcat(ControlsFolder, filesep, nameFolds{i,1}), nameFolds{i}, Table, i)  
-    
+    for i= 1:size(nameFolds)  
+    TimeInt = [.32, .6];      
+   [Table]=findextrema(strcat(ControlsFolder, filesep, nameFolds{i,1}), nameFolds{i}, Table, i)    
     end
 
     Path=strcat('/home/kh/ShareWindows/data', filesep, 'Extrema_and_Locations_controls.mat')
-    save(Path, 'Table')
-    
+    save(Path, 'Table')  
 end
 
 
@@ -62,7 +55,6 @@ end
 [Table, Mask]=kh_Whereami (SubjectPath, SubjectName, Table, i, 'Mask_complete', 1)
 [Table, Mask]=kh_Whereami (SubjectPath, SubjectName, Table, i, 'left_Brain', 2)
 [Table, Mask]=kh_Whereami (SubjectPath, SubjectName, Table, i, 'right_Brain', 3)
-
 end
 
 
@@ -92,9 +84,7 @@ end
 
 Table.(Mask).Location{i,1} = Whereami{1,1}{row+1}
 Table.(Mask).Coord(i,1:4)  = newData1.data(1,2:5)
-
 end
-
 
 
 function [newData1]=importfile(fileToRead1)
@@ -119,5 +109,4 @@ vars = fieldnames(newData1);
 for i = 1:length(vars)
     assignin('base', vars{i}, newData1.(vars{i}));
 end
-
 end
