@@ -2,7 +2,7 @@ function LR_ttest_dep()
     controlsFolder = '/home/kh/ShareWindows/data/controls/controls_SAM';
     PatientFolder  = '/home/kh/ShareWindows/data/patients/patients_SAM';
     TimeInt = [.32, .6, 320, 600; .32 .47, 320, 470; .4, .6, 400, 600 ];
-    for_all( controlsFolder, 'controls', TimeInt )
+%     for_all( controlsFolder, 'controls', TimeInt )
     for_all( PatientFolder,  'patients', TimeInt )
 end
 
@@ -26,29 +26,29 @@ function Main (nameFolds, Folder, group, TimeInt)
         SubjectPath = strcat(Folder, filesep, nameFolds{i,1});
         SubjectName = nameFolds{i};
 
-        %       [avg] = AVG_CleanData (SubjectPath, SubjectName, group)
-        %       kh_SAM(SubjectPath, SubjectName, group, avg)
-
-        %       for ztime=1:size(TimeInt,1)
-        %           [VlrAll, Vall] = get_V (SubjectPath, SubjectName, VlrAll, Vall, TimeInt(ztime,:));
-        %           TTestLR (SubjectPath, SubjectName, VlrAll, Vall, TimeInt(ztime,:))
-        %       end
-
-        %       deleteFiles(SubjectPath, SubjectName) % belongs to TTestLR
+%         [avg] = AVG_CleanData (SubjectPath, SubjectName, group)
+%         kh_SAM(SubjectPath, SubjectName, group, avg)
 
         for ztime=1:size(TimeInt,1)
-            %           kh_TTest_normalize (SubjectPath, SubjectName, TimeInt(ztime,:))
-            %           kh_extractActROI (SubjectPath, SubjectName, 'Broca_left_dil', 'Broca_right_dil', 'Broca', TimeInt(ztime,:))
-            %           kh_extractActROI (SubjectPath, SubjectName, 'Wernicke_left_dil', 'Wernicke_right_dil', 'Wernicke', TimeInt(ztime,:))
-          
-%             [LI_All] = collect_LI (SubjectPath, SubjectName, strcat(num2str(TimeInt(ztime,1)),'_', num2str(TimeInt(ztime,2)),'_s' ), LI_All, strcat('Int',num2str(TimeInt(ztime, 3)),'To',num2str(TimeInt(ztime, 4)), 'ms'))
+            [VlrAll, Vall] = get_V (SubjectPath, SubjectName, VlrAll, Vall, TimeInt(ztime,:));
+            TTestLR (SubjectPath, SubjectName, VlrAll, Vall, TimeInt(ztime,:))
+        end
+
+        deleteFiles(SubjectPath, SubjectName) % belongs to TTestLR
+
+        for ztime=1:size(TimeInt,1)
+            kh_TTest_normalize (SubjectPath, SubjectName, TimeInt(ztime,:))
+            mergeRuns (TimeInt(ztime,:))
+            kh_extractActROI (SubjectPath, SubjectName, 'Broca_left_dil', 'Broca_right_dil', 'Broca', TimeInt(ztime,:))
+            kh_extractActROI (SubjectPath, SubjectName, 'Wernicke_left_dil', 'Wernicke_right_dil', 'Wernicke', TimeInt(ztime,:))
+           [LI_All] = collect_LI (SubjectPath, SubjectName, strcat(num2str(TimeInt(ztime,1)),'_', num2str(TimeInt(ztime,2)),'_s' ), LI_All, strcat('Int',num2str(TimeInt(ztime, 3)),'To',num2str(TimeInt(ztime, 4)), 'ms'))
         end
     end
-%     Path = strcat( '/home/kh/ShareWindows/data/', group, filesep, 'LIs_signVoxels_singleTrials.mat'); 
-%     save (Path, 'LI_All')
-    for ztime=1:size(TimeInt,1)
-        collect_LI_excel (group, strcat('Int',num2str(TimeInt(ztime, 3)),'To',num2str(TimeInt(ztime, 4)), 'ms'))
-    end
+        Path = strcat( '/home/kh/ShareWindows/data/', group, filesep, 'LIs_signVoxels_singleTrials.mat');
+        save (Path, 'LI_All')
+        for ztime=1:size(TimeInt,1)
+            collect_LI_excel (group, strcat('Int',num2str(TimeInt(ztime, 3)),'To',num2str(TimeInt(ztime, 4)), 'ms'))
+        end
 end
 
 
@@ -63,6 +63,9 @@ function [avg]=AVG_CleanData (SubjectPath, SubjectName, group)
     if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'ERF_1000ms_Trial_1+orig.BRIK'))
         avg=[];
         return 
+    end
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_0.32_0.6sMNI+tlrc.BRIK'), 'file')
+        return
     end
     
     switch SubjectName
@@ -122,6 +125,10 @@ function kh_SAM(SubjectPath, SubjectName, group, avg)
         return 
     end
     
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_0.32_0.6sMNI+tlrc.BRIK'), 'file')
+        return
+    end
+    
     switch group
         case 'controls'
             load(strcat(SubjectPath, filesep, 'SAM', filesep, 'Workspace_SAM.mat'));
@@ -167,6 +174,10 @@ function [VlrAll, Vall] = get_V (SubjectPath, SubjectName, VlrAll, Vall, TimeInt
     if 1 == strcmp (SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg')  % ToDo: zzz_ht später entfernen
         return
     end
+    
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_0.32_0.6sMNI+tlrc.BRIK'), 'file')
+        return
+    end
 
     Path = strcat(SubjectPath, filesep, 'TTest');
     CleanData=dir(fullfile(Path, 'CleanData*.mat'))
@@ -207,6 +218,11 @@ function TTestLR (SubjectPath, SubjectName, VlrAll, Vall, TimeInt)
     if 1 == strcmp (SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg')  % ToDo: zzz_ht später entfernen
         return
     end
+    
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 'sMNI+tlrc.BRIK'), 'file')
+        return
+    end
+    
     T=zeros(size(Vall,1),size(Vall,2),size(Vall,3));
     
     for i=1:size(Vall,1)
@@ -244,6 +260,10 @@ function deleteFiles(SubjectPath, SubjectName)
         return
     end
 
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_0.32_0.6sMNI+tlrc.BRIK'), 'file')
+        return
+    end
+    
     ERFFiles=dir(fullfile(SubjectPath, filesep, 'TTest', filesep, 'ERF_*.BRIK'))
 
     for j=1:length(ERFFiles)
@@ -255,6 +275,10 @@ end
 function kh_TTest_normalize (SubjectPath, SubjectName, TimeInt)
 
     if 1 == strcmp (SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg')
+        return
+    end
+    
+    if exist(strcat(SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 'sMNI+tlrc.BRIK'), 'file')
         return
     end
     
@@ -279,13 +303,18 @@ end
 
 function kh_extractActROI (SubjectPath, SubjectName,  ROI_left, ROI_right, ROIName, TimeInt, Time)
 
-    if 1 == strcmp (SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg')
+    if 1 == strcmp (SubjectName, 'Pat_02_13008rh_1') || 1 == strcmp (SubjectName, 'Pat_02_13008rh_2') || 1 == strcmp (SubjectName, 'Pat_03_13014bg_1') || 1 == strcmp (SubjectName, 'Pat_03_13014bg_2')
         return
     end
-
+    
+    if 1==strcmp(SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg') 
+        Path2TValues = strcat (SubjectPath, filesep, 'TTest', filesep, 'BothRuns_br01_ttest_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 'MNI+tlrc' );
+    else
+        
     PathTTest = strcat (SubjectPath, filesep, 'TTest', filesep);
     cd (PathTTest)
     Path2TValues = strcat (SubjectPath, filesep, 'TTest', filesep, 'brain01_ttest_LR_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 'sMNI+tlrc' );
+    end
     [V_TValues, Info_TValues] = BrikLoad (Path2TValues);
 
     PathMask_left = strcat ('/home/kh/ShareWindows/data/patients/', ROI_left, '+tlrc');
@@ -322,10 +351,6 @@ end
 
 
 function [LI_All] = collect_LI (SubjectPath, SubjectName, TimeInt, LI_All, Time )
-
-    if 1 == strcmp (SubjectName, 'Pat_02_13008rh') || 1 == strcmp (SubjectName, 'Pat_03_13014bg')
-        return
-    end
 
     PathLIBroca = strcat (SubjectPath, filesep, 'TTest/', 'LI_', 'Brocadil_SumOfSignVoxels_', TimeInt, '.mat');
     load (PathLIBroca)
@@ -412,4 +437,25 @@ LI.(Time).Wernicke(i,7) = LI_All.(nameFolds{i}).(Time).Wernicke.relActRight;
 
 end
 
+save(strcat('/home/kh/ShareWindows/Results/MEG_singleTrials/', group, '_TTest_', Time,'.mat'), 'LI') ;
+end
+
+
+function mergeRuns (TimeInt)
+
+% if patients have more than one run:
+    if ~exist(strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_02_13008rh/TTest/BothRuns_br01_ttest_', num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'MNI+tlrc.BRIK'), 'file');
+        FileName1=strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_02_13008rh_1/TTest/brain01_ttest_LR_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'sMNI+tlrc');
+        FileName2=strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_02_13008rh_2/TTest/brain01_ttest_LR_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'sMNI+tlrc');
+        cd('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_02_13008rh/TTest')
+        Prefix=strcat('BothRuns_br01_ttest_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'MNI+tlrc');
+        eval(['!3dcalc -a ', FileName1, ' -b ', FileName2, ' -exp ''(a+b)/2'' -prefix ', Prefix])
+    end
+    if ~exist(strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_03_13014bg/TTest/BothRuns_br01_ttest_', num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'MNI+tlrc.BRIK'), 'file');
+        FileName1=strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_03_13014bg_1/TTest/brain01_ttest_LR_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'sMNI+tlrc');
+        FileName2=strcat('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_03_13014bg_2/TTest/brain01_ttest_LR_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'sMNI+tlrc');
+        cd('/home/kh/ShareWindows/data/patients/patients_SAM/Pat_03_13014bg/TTest')
+        Prefix=strcat('BothRuns_br01_ttest_',num2str(TimeInt(1)), '_',num2str(TimeInt(2)), 'MNI+tlrc');
+        eval(['!3dcalc -a ', FileName1, ' -b ', FileName2, ' -exp ''(a+b)/2'' -prefix ', Prefix])
+    end
 end

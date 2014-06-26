@@ -45,7 +45,7 @@ extractfullActROI
 
 
 % U-Test für einzelne Subjects: WICHTIG
-kh_SAM_Beamforming_keepttrials.m % Wiederholung für AVGTrials, mitteln von 10er Gruppen;
+kh_SAM_Beamforming_keeptrials.m % Wiederholung für AVGTrials, mitteln von 10er Gruppen; nur f�r Patienten
 LR_UTest_ind.m % U-Test für verschiedene Zeitintervalle; Linke vs. rechte Hemisphere, hier nohc keine ROIextraction
 UTest_normalize.m % NOrmalisierung in MNI space
 extract_UValuesROI.m % Berechnung des LI-Wertes für ROIs
@@ -83,7 +83,7 @@ Extract_Max_Activity_no_noise_voxelcomparison.m % Y. meinte in Mail, dass es hel
 % außerdem für Diss:
 extract_Act_patients2.m % erstellt Abbildungen aus maximaler Activität pro Sample für linke und rechte ROI
 Extract_Max_Activity.m % extrahiert Maxima in ROI und berechnet LIs für Summe aus Maxima pro sample und aus höchsten Maximum aller samples
-
+Extract_Max_Activity_noise.m
 
 
 % patients with noise normalization
@@ -126,9 +126,16 @@ FindClust_VG.m % Findet pro Maske Clusterwerte
 % TTest für jeweils 10 gemittelte Trials:
 LR_TTest_AVG10_noise_abs.m % noch unvollständig, Prüfung an einem Probanden führte zu keinen wesentlichen Änderungen gegenüber dem U-Test
 
-% Versuch, ttest linke gegen rechte hemisphäre zu berechnen bei ungemittelten Daten:
+% single Trial analysis: ttest, berechnet linke gegen rechte hemisphäre bei ungemittelten Daten:
 CopyCleanData.m % kopiert CleanData.mat von Windows zum Linuxordner 
 LR_ttest_singleTrials.m  % => hier auch Beschreibung für Patienten, welche gesäuberten Daten genommen worden sidn
 
 % zum ausprobieren:
 kh_reshape.m: % aus 2D => 4D ohne abspeichern
+
+% SAM analysis  for activation relative to baseline:
+relativeAct.m % Relative Act = mean(abs(VS_VG))./mean(abs(VS_Baseline))
+relativeAct_substraction.m % Relative Act = sum(abs(VS_VG))-sum(abs(VS_Baseline)), LIs aus maximum gebildet
+relativeAct_sub_min.m % Relative Act = sum(abs(VS_VG))-sum(abs(VS_Baseline)), LIs aus minimum gebildet
+
+extractUValues_ROI_AVGControls.m

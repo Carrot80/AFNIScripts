@@ -23,9 +23,9 @@ function for_all (Folder, group)
 
     TimeInt = [.32, .6];
         
-%         kh_extractActROI(strcat(Folder, filesep, nameFolds{i,1}), nameFolds{i}, 'Broca_left_dil', 'Broca_right_dil', 'Broca', TimeInt, group)
-%         kh_extractActROI(strcat(Folder, filesep, nameFolds{i,1}), nameFolds{i}, 'Wernicke_left_dil', 'Wernicke_right_dil', 'Wernicke', TimeInt, group)
-% % % % % 
+        kh_extractActROI(strcat(Folder, filesep, nameFolds{i,1}), nameFolds{i}, 'Broca_left_dil', 'Broca_right_dil', 'Broca', TimeInt, group)
+        kh_extractActROI(strcat(Folder, filesep, nameFolds{i,1}), nameFolds{i}, 'Wernicke_left_dil', 'Wernicke_right_dil', 'Wernicke', TimeInt, group)
+
 
 
       [LI_All_noise]= collect_LI (strcat(Folder, filesep, nameFolds{i,1}), i, LI_All_noise, nameFolds{i,1})
@@ -33,7 +33,7 @@ function for_all (Folder, group)
 
     end
 
-    Path_LI_All_noise=strcat('/home/kh/ShareWindows/data/', group, filesep, 'LI_All_noise')
+    Path_LI_All_noise=strcat('/home/kh/ShareWindows/data/', group, filesep, 'LI_All_noise_abs')
     save (Path_LI_All_noise, 'LI_All_noise')
 
 end
@@ -43,12 +43,9 @@ end
 function kh_extractActROI (SubjectPath, SubjectName, ROI_left, ROI_right, ROI, TimeInt, group)
 
 if 1==strcmp(SubjectName,'Pat_02_13008rh') || 1==strcmp(SubjectName,'Pat_03_13014bg') 
-
     return
 end
-
 % time dimension: to plot left and right activity over time
-
 if 1==strcmp(group, 'Controls')
     Path = strcat( SubjectPath, filesep, 'SAM')
     cd (Path)
@@ -62,17 +59,13 @@ end
 % NewFileName = 'ERF_noise+orig';
 % eval(['!@auto_tlrc -apar ', strcat(SubjectPath, filesep, 'keptTrials', filesep, 'orthoMNI_avg152T+tlrc'), ' -input ', NewFileName,' -dxyz 5']) % 
 
-
 [V_ERF, Info_ERF] = BrikLoad (FileName);
 
 PathMask_left = strcat ('/home/kh/ShareWindows/data/patients/', ROI_left, '+tlrc');
 [Mask_left, Info_MASK_left] = BrikLoad (PathMask_left); 
 
-
 PathMask_right = strcat ('/home/kh/ShareWindows/data/patients/', ROI_right, '+tlrc');
 [Mask_right, Info_MASK_right] = BrikLoad (PathMask_right);
-
-
 
 for i= 1:length(V_ERF)
     LeftAct(:,:,:,i) = Mask_left.*V_ERF(:,:,:,i);
@@ -81,7 +74,6 @@ end
 for i= 1:length(V_ERF)
     RightAct(:,:,:,i) = Mask_right.*V_ERF(:,:,:,i);
 end
-
 
 %%
 for i=1:length(RightAct)
@@ -144,28 +136,6 @@ LI_SumMax_noise           = (Sum_Max_LeftAct_TimeInt-Sum_Max_RightAct_TimeInt)./
 LI_SumMax_Path=strcat(SubjectPath, filesep, 'LI_noise_', ROI, '_SumMax_', num2str(TimeInt(1,1)),'_', num2str(TimeInt(1,2)),'ms.mat')
 save (LI_SumMax_Path, 'LI_SumMax_noise') 
 
-
-
-
-%%
-
-
-% [V_ERF_z, Info_ERF_z] = BrikLoad ('br_z_transf_brain01ERF_noise_0.32-0.6s_Pat_05_13019fz+tlrc');
-% 
-% 
-% 
-% 
-%     LeftAct_z = Mask_left.*V_ERF_z;
-%     RightAct_z= Mask_right.*V_ERF_z;
-% 
-% LeftAct_z_max=max(LeftAct_z(:));
-% RightAct_z_max= max(RightAct_z(:));   
-
-
-
-
-
-
 end
 
 
@@ -175,7 +145,6 @@ if 1==strcmp(SubjectName,'Pat_02_13008rh') || 1==strcmp(SubjectName,'Pat_03_1301
 
     return
 end
-
 
 load(strcat(SubjectPath, filesep,  'LI_Max_squared_noise_Broca_0.32_0.6ms.mat'))
 LI_All(1,1)=LI_Max_sqared;

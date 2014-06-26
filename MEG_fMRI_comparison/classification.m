@@ -1,5 +1,9 @@
 function [corClass, pat_wada]=classification (values)
 
+    % corClass= percentage of correct classified cases
+    %Total
+    %left=patients with left wada test result
+    
     % classification wada test Patient 1-24:
 
     Wada= {'right' 'left' 'left' 'left' 'kein Wada' 'right' 'kein Wada' 'right' 'kein Wada' 'right' 'kein Wada' ...

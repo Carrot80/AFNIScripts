@@ -3,7 +3,7 @@ function for_all ()
 
 % Script written by Yuval:
 
-ControlsFolder = '/home/kh/ShareWindows/data/patients/patients_SAM';
+ControlsFolder = '/home/kh/ShareWindows/data/controls/controls_SAM';
 
 DIR = dir (ControlsFolder)
 isub = [DIR(:).isdir]; %  returns logical vector
@@ -98,7 +98,7 @@ end
 function UtestLR (SubjectPath, SubjectName, VlrAll, Vall, TimeInt)
  
 
-if 0 == strcmp (SubjectName, 'Pat_02_13008rh')
+if 1 == strcmp (SubjectName, 'Pat_02_13008rh')
     return
 end
 
@@ -108,7 +108,7 @@ end
         for j=1:size(Vall,2)
             for k=1:size(Vall,3)
                 if Vall(i,j,k)>0
-                    [p, ~, stats] = ranksum(squeeze(Vall(i,j,k,:)),squeeze(VlrAll(i,j,k,:)), 'method', 'approximate');
+                    [p, ~, stats] = signrank(squeeze(Vall(i,j,k,:)),squeeze(VlrAll(i,j,k,:)), 'method', 'approximate');
                     u=1-p;
                     dif=mean(squeeze(Vall(i,j,k,:)))-mean(squeeze(VlrAll(i,j,k,:)));
                     if dif>0
@@ -130,7 +130,7 @@ end
     
     
     OptTSOut.Scale = 1;
-    OptTSOut.Prefix = strcat('Utest', '_', 'LR', '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 's');
+    OptTSOut.Prefix = strcat('Utest_paired', '_', 'LR', '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), 's');
     OptTSOut.verbose = 1;
     OptTSOut.View = '+orig' ;
     %Vsymm=double(Vlr+V>0);

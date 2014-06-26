@@ -2,36 +2,23 @@ function ForAll()
 
 % multiply weigths with avgtrials and normalize
 ControlsFolder = '/home/kh/ShareWindows/data/patients/patients_SAM';
-
 DIR = dir (ControlsFolder)
 isub = [DIR(:).isdir]; %# returns logical vector
 nameFolds = {DIR(isub).name}';
 nameFolds(ismember(nameFolds,{'.','..'})) = [];
 
-
 for i= 1:size(nameFolds,1)
     
    kh_SAM( strcat(ControlsFolder, filesep, nameFolds{i,1}), nameFolds{i})
-
 end
-
-
 end
-
-
 
 
 function kh_SAM(SubjectPath, SubjectName)
 
-
 if 0 == strcmp (SubjectName, 'Pat_03_13014bg')
     return
 end
-
-
-% if exist(Path_vs, 'file')
-%     return
-% end
 
 NewFolder = strcat(SubjectPath, filesep, 'keptTrials');
 if ~exist(NewFolder, 'dir')
@@ -45,8 +32,6 @@ cd (PathSAM)
 [SAMHeader, ActIndex, ActWgts]=readWeights('M400,1-50Hz,VGa.wts');
 
 % load (strcat (SubjectPath, filesep, 'SAM/Workspace_SAM.mat'));
-
-
 % load avg:
 PathAVG = strcat(SubjectPath, filesep, 'avgTrials_', SubjectName, '.mat');
 load(PathAVG)
@@ -72,15 +57,8 @@ for i=1:length(avgTrials.trial(:,1,1))
     % max(max(vs))
     VS2Brik(cfg,1e+13*abs(vs)); % =>creates ERF+orig.Brik+Head
     
-%     MNIFile = strcat (SubjectPath, filesep, 'SAM', filesep, 'orthoMNI_avg152T+tlrc');
-    
-%     eval ([ '!@auto_tlrc -apar ', MNIFile, ' -input ', 'ERF_avgTrials_', num2str(i), '+orig -dxyz 5'  ]);
-%     
-  
-    
+%     MNIFile = strcat (SubjectPath, filesep, 'SAM', filesep, 'orthoMNI_avg152T+tlrc');    
+%     eval ([ '!@auto_tlrc -apar ', MNIFile, ' -input ', 'ERF_avgTrials_', num2str(i), '+orig -dxyz 5'  ]);  
 end
-
-
-
 end
 
