@@ -4,6 +4,11 @@ function [corClass, pat_wada]=classification (values)
     %Total
     %left=patients with left wada test result
     
+    if length(values)>24
+        disp ('Warning: length of input data is larger than 24 - aborting')
+        return
+    end
+    
     % classification wada test Patient 1-24:
 
     Wada= {'right' 'left' 'left' 'left' 'kein Wada' 'right' 'kein Wada' 'right' 'kein Wada' 'right' 'kein Wada' ...

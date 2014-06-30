@@ -1,9 +1,8 @@
 function ForAll()
 
-% 
-% dies für alle Patienten nutzen und umbauen plus kontrollieren, ob es
-% funktioniert!
 ControlsFolder = '/home/kh/data/controls_SAM';
+
+createPARAM('M400','ERF','VG',[0.35 0.45],'VG',[-0.1 0],[1 50],[-0.1 0.7]);
 
 DIR = dir (ControlsFolder)
 isub = [DIR(:).isdir]; %# returns logical vector
@@ -15,7 +14,6 @@ for i= 1:size(nameFolds)
    kh_SAM( strcat(ControlsFolder, filesep, nameFolds(i,1)), nameFolds(i))
 
 end
-
 
 end
 
