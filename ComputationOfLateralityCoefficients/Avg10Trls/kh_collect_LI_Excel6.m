@@ -1,5 +1,5 @@
 
-Files = '/home/kh/ShareWindows/data/controls/controls_SAM';
+Files = 'D:\Arbeit\LinuxExchange\data\patients\patients_SAM';
 Dir = dir(Files);
 isub = [Dir(:).isdir];
 nameFolds = {Dir(isub).name}';
@@ -42,7 +42,7 @@ end
 
 
 for i= 1:length(nameFolds)
-LI_patients.Broca(i,1) = LI_All.(nameFolds{i}).Broca.Classic;
+LI_patients.Wernicke(i,1) = LI_All.(nameFolds{i}).Wernicke.Classic;
 end
 
 

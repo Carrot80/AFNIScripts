@@ -7,7 +7,7 @@ function patients ()
     ControlsFolder = '/home/kh/ShareWindows/data/controls/controls_SAM';
 
     ForAll (PatientFolder, 'patients')
-    ForAll (ControlsFolder, 'controls')
+%     ForAll (ControlsFolder, 'controls')
 
 end
 
@@ -18,7 +18,7 @@ isub = [DIR(:).isdir];
 nameFolds = {DIR(isub).name}';
 nameFolds(ismember(nameFolds,{'.','..'})) = [];
 
-for i= 1:size(nameFolds)
+for i= [10, 12, 21] %:size(nameFolds)
     
 kh_SAM( strcat(Folder, filesep, nameFolds{i,1}), nameFolds{i}, group)
 
@@ -29,7 +29,7 @@ end
 
 function kh_SAM(SubjectPath, SubjectName, group)
  
-    if 1==strcmp(SubjectName, 'Pat_02_13008rh') || 1==strcmp(SubjectName, 'Pat_03_13014bg') || 1==strcmp(SubjectName, 'Pat_02_13008rh_1')
+    if 1==strcmp(SubjectName, 'Pat_02_13008rh') || 1==strcmp(SubjectName, 'Pat_03_13014bg') 
         return
     end
 

@@ -6,7 +6,7 @@ function for_all ()
 % function created textfiles for Maxvalue in ROI
 
 
-    ControlsFolder = '/home/kh/ShareWindows/data/controls/controls_SAM';
+    ControlsFolder = '/home/kh/ShareWindows/data/patients/patients_SAM';
 
     DIR = dir (ControlsFolder)
     isub = [DIR(:).isdir]; %  returns logical vector
@@ -37,7 +37,7 @@ function [LI_All, SumVoxelsORValues] = collect_LI (SubjectPath, SubjectName, Tim
 
 % PathFile = strcat (SubjectPath, filesep, 'LI', filesep, 'LI_', ROIName, '_SumOfMaxValues_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)),  '_s.mat' );
 
-PathLIBroca = strcat (SubjectPath, filesep, 'UTest/', 'LI_', 'Broca', 'dil_', SumVoxelsORValues, '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), '_s.mat');
+PathLIBroca = strcat (SubjectPath, filesep, 'keptTrials/', 'LI_', 'Broca', 'dil_', SumVoxelsORValues, '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), '_s.mat');
 load (PathLIBroca)
 
 
@@ -45,7 +45,7 @@ load (PathLIBroca)
 LI_All.(SubjectName).Broca = LI;
 clear LI
 
-PathLIWernicke = strcat (SubjectPath, filesep, 'UTest/', 'LI_', 'Wernicke','dil_', SumVoxelsORValues, '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), '_s.mat');
+PathLIWernicke = strcat (SubjectPath, filesep, 'keptTrials/', 'LI_', 'Wernicke','dil_', SumVoxelsORValues, '_', num2str(TimeInt(1,1)), '_', num2str(TimeInt(1,2)), '_s.mat');
 load (PathLIWernicke)
 LI_All.(SubjectName).Wernicke = LI;
 clear LI

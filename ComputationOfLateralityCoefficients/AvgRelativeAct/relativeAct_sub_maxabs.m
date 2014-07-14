@@ -1,5 +1,6 @@
+% computes  LI (sqrt) of maximum of absolute values
 function patients ()
-   
+   % funkioniert zur Lateralisierung nicht gut
     PatientFolder = '/home/kh/ShareWindows/data/SAM_BL_350ms/patients';
     ControlsFolder = '/home/kh/ShareWindows/data/SAM_BL_350ms/controls';
 
@@ -23,7 +24,7 @@ function forAll(Folder, group)
       [LI_All_RelAct]= collect_LI (strcat(Folder, filesep, nameFolds{i,1}), i, LI_All_RelAct, nameFolds{i,1}, TimeInt)
     end
     
-    Path_LI_All=strcat('/home/kh/ShareWindows/Results/LI_RelativeAct/LI_All_RelAct_', num2str(TimeInt(1)), '_', num2str(TimeInt(2)), 's_', group, '.mat')
+    Path_LI_All=strcat('/home/kh/ShareWindows/Results/LI_RelativeActSubmaxabs/LI_All_RelAct_', num2str(TimeInt(1)), '_', num2str(TimeInt(2)), 's_', group, '.mat')
     save (Path_LI_All, 'LI_All_RelAct')
 
 end
@@ -34,12 +35,12 @@ function kh_SAM_RelAct (SubjectPath, SubjectName, TimeInt, group)
         return
     end
     
-    SAMPath = strcat(SubjectPath, filesep, 'SAM');
+     SAMPath = strcat(SubjectPath, filesep, 'SAM');
     cd (SAMPath)
     %read weights:
     [SAMHeader, ActIndex, ActWgts]=readWeights('M400,1-50Hz,VGa.wts');
     % load avg:
-    OldPath = strcat('/home/kh/ShareWindows/data/', group, filesep, group, '_SAM', filesep, SubjectName, filesep);   
+    OldPath = strcat('/home/kh/ShareWindows/data/', group, filesep, group, '_SAM', filesep, SubjectName, filesep); 
     
     switch SubjectName
         case 'Pat_03_13014bg_1'
@@ -67,22 +68,29 @@ function kh_SAM_RelAct (SubjectPath, SubjectName, TimeInt, group)
         otherwise
             File_CleanData = strcat(OldPath,'TTest/', 'CleanData.mat');
     end
-
+    
+    % load avg:
     load(File_CleanData)
     CleanData_BL=correctBL(CleanData, [-0.35 -0.03]);
     cfg=[];
     avgBL=ft_timelockanalysis(cfg, CleanData_BL)
+    
     fs = 1017.25;
-    % Baselineintervall 350-30ms prestim:
+    % Baselineintervall 350-50ms prestim:
+   
     avgBaseline=avgBL.avg(:,158:490); % in etwa
     avgVG_1_1000=avgBL.avg(:,509:size(avgBL.avg,2)); %in etwa
     time_samples=(1:size(avgVG_1_1000,2))./fs;
     avgVG_TimeInt=avgVG_1_1000(:, nearest(time_samples, TimeInt(1)):nearest(time_samples, TimeInt(2)));
     VS_Baseline=ActWgts*avgBaseline;
     VS_VG=ActWgts*avgVG_TimeInt;
-    VS_RelAct=mean(abs(VS_VG'))./mean(abs(VS_Baseline'));
+    ns=mean(abs(ActWgts),2);   
+    VS_VG_ns=VS_VG./repmat(ns,1,size(VS_VG,2));
+    VS_Baseline_ns=VS_Baseline./repmat(ns,1,size(VS_Baseline,2));
+    VS_RelActSub=sum(abs(VS_VG_ns'))-sum(abs(VS_Baseline_ns'));
+   
 
-    NewDir=strcat(SubjectPath, filesep, 'RelativeAct')
+    NewDir=strcat(SubjectPath, filesep, 'RelativeActSubmaxabs')
     if ~exist(NewDir, 'dir')
         mkdir (NewDir)
     end
@@ -94,7 +102,7 @@ function kh_SAM_RelAct (SubjectPath, SubjectName, TimeInt, group)
     cfg.boxSize=[-120 120 -90 90 -20 150];
     str_timeInt= strcat('RelAct', '_', num2str(TimeInt(1)), '-', num2str(TimeInt(2)), 's');
     cfg.prefix = str_timeInt; % change prefix
-    VS2Brik(cfg,VS_RelAct'); % =>creates ERF+orig.Brik+Head 
+    VS2Brik(cfg,VS_RelActSub'); % =>creates ERF+orig.Brik+Head 
 
     NewFileName = strcat(str_timeInt,'+orig');
     eval(['!@auto_tlrc -apar ', strcat(OldPath, 'keptTrials', filesep, 'orthoMNI_avg152T+tlrc'), ' -input ', NewFileName,' -dxyz 5']) % 
@@ -151,7 +159,7 @@ function kh_extractActROI (SubjectPath, SubjectName, ROI_left, ROI_right, ROI, T
     if 1==strcmp(SubjectName,'Pat_02_13008rh') || 1==strcmp(SubjectName,'Pat_03_13014bg') 
         return
     end
-    cd (strcat(SubjectPath, filesep, 'RelativeAct'))
+    cd (strcat(SubjectPath, filesep, 'RelativeActSubmaxabs'))
     FileName = strcat('br01RelAct_', num2str(TimeInt(1)), '-', num2str(TimeInt(2)), 's+tlrc');
     [V_ERF, Info_ERF] = BrikLoad (FileName);
 
@@ -170,21 +178,21 @@ function kh_extractActROI (SubjectPath, SubjectName, ROI_left, ROI_right, ROI, T
     end
 
     %%
-    Max_RightAct = max(RightAct(:));
-    Max_LeftAct = max(LeftAct(:));
+    maxabs_RightAct = max(abs(RightAct(:)));
+    maxabs_LeftAct = max(abs(LeftAct(:)));
     
-    LI_Max=(Max_LeftAct-Max_RightAct)/(Max_LeftAct+Max_RightAct);
-    LI_squared=(Max_LeftAct^2-Max_RightAct^2)/(Max_LeftAct^2+Max_RightAct^2);
+    LI_maxabs=(maxabs_LeftAct-maxabs_RightAct)/(maxabs_LeftAct+maxabs_RightAct);
+    LI_squared=(maxabs_LeftAct^2-maxabs_RightAct^2)/(maxabs_LeftAct^2+maxabs_RightAct^2);
     LI_sqrt=sqrt(abs(LI_squared));
     if LI_squared <0
-        LI_Max_squared=LI_sqrt*(-1);
-    else LI_Max_squared=LI_sqrt;
+        LI_maxabs_squared=LI_sqrt*(-1);
+    else LI_maxabs_squared=LI_sqrt;
     end
 
-    LI.LI_Max=LI_Max
-    LI.LI_Max_squared=LI_Max_squared
+    LI.LI_maxabs=LI_maxabs
+    LI.LI_maxabs_squared=LI_maxabs_squared
     
-    LI_Path=strcat(SubjectPath, filesep, 'RelativeAct', filesep, 'LI_Max', ROI, '_', num2str(TimeInt(1)),'-', num2str(TimeInt(2)),'s.mat');
+    LI_Path=strcat(SubjectPath, filesep, 'RelativeActSubmaxabs', filesep, 'LI_maxabs', ROI, '_', num2str(TimeInt(1)),'-', num2str(TimeInt(2)),'s.mat');
     save (LI_Path, 'LI') 
 end
 
@@ -195,18 +203,18 @@ if 1==strcmp(SubjectName,'Pat_02_13008rh') || 1==strcmp(SubjectName,'Pat_03_1301
     return
 end
 
-load(strcat(SubjectPath, filesep,  'RelativeAct', filesep, 'LI_MaxBroca_', num2str(TimeInt(1)), '-',num2str(TimeInt(2)), 's.mat'))
-LI_All(1,1)=LI.LI_Max;
-clear LI.LI_Max
-LI_All(1,2)=LI.LI_Max_squared;
-clear LI.LI_Max_squared
+load(strcat(SubjectPath, filesep,  'RelativeActSubmaxabs', filesep, 'LI_maxabsBroca_', num2str(TimeInt(1)), '-',num2str(TimeInt(2)), 's.mat'))
+LI_All(1,1)=LI.LI_maxabs;
+clear LI.LI_maxabs
+LI_All(1,2)=LI.LI_maxabs_squared;
+clear LI.LI_maxabs_squared
 
-load(strcat(SubjectPath, filesep,  'RelativeAct', filesep, 'LI_MaxWernicke_', num2str(TimeInt(1)), '-',num2str(TimeInt(2)), 's.mat'))
-LI_All(1,3)=LI.LI_Max;
-clear LI.LI_Max
+load(strcat(SubjectPath, filesep,  'RelativeActSubmaxabs', filesep, 'LI_maxabsWernicke_', num2str(TimeInt(1)), '-',num2str(TimeInt(2)), 's.mat'))
+LI_All(1,3)=LI.LI_maxabs;
+clear LI.LI_maxabs
 
-LI_All(1,4)=LI.LI_Max_squared;
-clear LI.LI_Max_squared
+LI_All(1,4)=LI.LI_maxabs_squared;
+clear LI.LI_maxabs_squared
 
 LI_All_RelAct(i,:)=LI_All
 end

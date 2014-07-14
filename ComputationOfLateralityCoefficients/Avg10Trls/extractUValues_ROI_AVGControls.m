@@ -4,7 +4,7 @@ function for_all ()
 % for AVG Controls
 
     ControlsFolder = '/home/kh/ShareWindows/data/controls/AVGcontrols';
-    TimeInt = [.3, .6];
+    TimeInt = [.32, .47];
         
         kh_extractActROI(ControlsFolder, 'Broca_left_dil', 'Broca_right_dil', 'Broca', TimeInt)
         kh_extractActROI(ControlsFolder, 'Wernicke_left_dil', 'Wernicke_right_dil', 'Wernicke', TimeInt)
@@ -50,11 +50,11 @@ rightAct=V_UValues(Right_Voxels);
  LI.relActRight = length(signRightVoxels)./size(Right_Voxels, 1);
  LI.Max_percchange = (length(signLeftVoxels)-length(signRightVoxels))./length(signRightVoxels);
  LI.Classic = (length(signLeftVoxels)-length(signRightVoxels))./(length(signLeftVoxels)+length(signRightVoxels));
- if LI.Classic >= .1
+ if LI.Classic >= .2
       LI.Lateralization = 'left';
- elseif LI.Classic <= -.1 
+ elseif LI.Classic <= -.2 
     LI.Lateralization = 'right';
- elseif LI.Classic > -.1 && LI.Classic < +.1
+ elseif LI.Classic > -.2 && LI.Classic < +.2
  LI.Lateralization = 'bilateral';
  end
  
