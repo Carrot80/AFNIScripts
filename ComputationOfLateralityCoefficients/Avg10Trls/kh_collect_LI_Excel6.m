@@ -1,5 +1,5 @@
 
-Files = 'D:\Arbeit\LinuxExchange\data\patients\patients_SAM';
+Files = 'D:\Arbeit\LinuxExchange\data\controls\controls_SAM';
 Dir = dir(Files);
 isub = [Dir(:).isdir];
 nameFolds = {Dir(isub).name}';
