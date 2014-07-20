@@ -11,12 +11,10 @@ function [NBroca,NWernicke,Class_Broca,Class_Wernicke]=Threshold(LIs_rawdata)
     PPV=[];
     NPV=[];
     CutOffsAll= 0.0:0.05:1% 0.00:0.05:1 %change
-    FalseClass.FN_Wada_right=zeros(length(LIs_rawdata.Name),length(CutOffsAll), 8);
-    FalseClass.FP_Wada_left=zeros(length(LIs_rawdata.Name),length(CutOffsAll), 8);
     sizeCutOffsAll=length(CutOffsAll)
     IntCutOffs=1
     for CutOff=CutOffsAll
-        [FalseClass, corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical(LIs_rawdata.Broca, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV, FalseClass)
+        [corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical(LIs_rawdata.Broca, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV)
         IntCutOffs=IntCutOffs+1
     end
     Broca.corClass=corClass;
@@ -24,7 +22,6 @@ function [NBroca,NWernicke,Class_Broca,Class_Wernicke]=Threshold(LIs_rawdata)
     Broca.Specificity=Specificity;
     Broca.PPV=PPV;
     Broca.NPV=NPV;
-    Broca.FalseClass=FalseClass;
         
     % Das gleiche für Wernicke:
     corClass=[];
@@ -32,10 +29,9 @@ function [NBroca,NWernicke,Class_Broca,Class_Wernicke]=Threshold(LIs_rawdata)
     Specificity=[];
     PPV=[];
     NPV=[];
-    FalseClass=[];
     IntCutOffs=1    
     for CutOff=CutOffsAll
-        [FalseClass, corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical(LIs_rawdata.Wernicke, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV, FalseClass)
+        [corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical(LIs_rawdata.Wernicke, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV)
     IntCutOffs=IntCutOffs+1
     end
     Wernicke.corClass=corClass;
@@ -43,117 +39,11 @@ function [NBroca,NWernicke,Class_Broca,Class_Wernicke]=Threshold(LIs_rawdata)
     Wernicke.Specificity=Specificity;
     Wernicke.PPV=PPV;
     Wernicke.NPV=NPV;
-    Wernicke.FalseClass=FalseClass;
       
     % finds N with no activation (out of N=24):
     [No_Act]=findNoAct(LIs_rawdata) 
-%     FindBestMethods(Broca, Wernicke, LIs_rawdata.Name, CutOffsAll)
     plotROC (Broca, Wernicke, LIs_rawdata.Name, CutOffsAll)
-    
 end
-
-function FindBestMethods(Broca, Wernicke, Method, CutOffsAll)
-
-% Plot four best methods (Rel Act):
-figure
-for i=1:6
-    ind_maxBroca=[ 2 3 12 24 25 31]
-    subplot(3,2,i)
-    plot(1-Broca.Specificity(:,ind_maxBroca(i)), Broca.Sensitivity(:,ind_maxBroca(i)))
-    xlim([0 1])
-    ylim([0 1])
-    hold on
-    plot(1-Wernicke.Specificity(:,ind_maxBroca(i)), Wernicke.Sensitivity(:,ind_maxBroca(i)), 'r')
-    hold on
-    % bisecting angle:
-    bistect=[0:0.1:1]
-    plot(bistect,bistect, 'k')
-    xlabel('1 - Specificity');
-    ylabel('Sensitvity');   
-    box off
-end
-%%
-% best methods exploration:
-best_meth=[2, 3, 12, 24, 25, 31];
-Best.Broca.Sensitivity=Broca.Sensitivity(:, [2, 3, 12, 24, 25, 31])
-Best.Broca.Specificity=Broca.Specificity(:, [2, 3, 12, 24, 25, 31])
-Best.Wernicke.Sensitivity=Wernicke.Sensitivity(:, [2, 3, 12, 24, 25, 31])
-Best.Wernicke.Specificity=Wernicke.Specificity(:, [2, 3, 12, 24, 25, 31])
-
-k=1
-for i=best_meth
-   FN_Wada_right(k,:,:)=squeeze(Broca.FalseClass.FN_Wada_right(i,:,:))
-   k=k+1
-end
-
-k=1
-for i=best_meth
-   FP_Wada_left(k,:,:)=squeeze(Broca.FalseClass.FP_Wada_left(i,:,:))
-   k=k+1
-end
-
-Best_ind_Broca=[9 9 11 6 8 7];
-k=1
-for i=Best_ind_Broca
-FP_cases(k,k,:)=FP_Wada_left(i, Best_ind_Broca)
-k=k+1
-end
-
-
-[Max_Sensitivity_Wernicke, indMax_Sensitivity_Wernicke]=max(Wernicke.Sensitivity);
-
-FN_Wada_right.Method_2_Broca=squeeze(Broca.FalseClass.FN_Wada_right(2,:,:))
-FN_Wada_right.Method_2_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(2,:,:))
-FN_Wada_right.Method_3_Broca=squeeze(Broca.FalseClass.FN_Wada_right(3,:,:))
-FN_Wada_right.Method_3_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(3,:,:))
-FN_Wada_right.Method_12_Broca=squeeze(Broca.FalseClass.FN_Wada_right(12,:,:))
-FN_Wada_right.Method_12_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(12,:,:))
-FN_Wada_right.Method_24_Broca=squeeze(Broca.FalseClass.FN_Wada_right(24,:,:))
-FN_Wada_right.Method_24_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(24,:,:))
-FN_Wada_right.Method_25_Broca=squeeze(Broca.FalseClass.FN_Wada_right(25,:,:))
-FN_Wada_right.Method_25_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(25,:,:))
-FN_Wada_right.Method_31_Broca=squeeze(Broca.FalseClass.FN_Wada_right(31,:,:))
-FN_Wada_right.Method_31_Wernicke=squeeze(Wernicke.FalseClass.FN_Wada_right(31,:,:))
-
-FP_Wada_left.Method_2_Broca=squeeze(Broca.FalseClass.FP_Wada_left(2,:,:))
-FP_Wada_left.Method_2_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(2,:,:))
-FP_Wada_left.Method_3_Broca=squeeze(Broca.FalseClass.FP_Wada_left(3,:,:))
-FP_Wada_left.Method_3_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(3,:,:))
-FP_Wada_left.Method_12_Broca=squeeze(Broca.FalseClass.FP_Wada_left(12,:,:))
-FP_Wada_left.Method_12_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(12,:,:))
-FP_Wada_left.Method_24_Broca=squeeze(Broca.FalseClass.FP_Wada_left(24,:,:))
-FP_Wada_left.Method_24_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(24,:,:))
-FP_Wada_left.Method_25_Broca=squeeze(Broca.FalseClass.FP_Wada_left(25,:,:))
-FP_Wada_left.Method_25_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(25,:,:))
-FP_Wada_left.Method_31_Broca=squeeze(Broca.FalseClass.FP_Wada_left(31,:,:))
-FP_Wada_left.Method_31_Wernicke=squeeze(Wernicke.FalseClass.FP_Wada_left(31,:,:))
-% 
-
-
-l=[2, 3, 12, 24, 25, 31];
-k=1:length(l)
-for i=indMax_Sensitivity_Broca
-    for k=1:length(l)
-Broca_max(i)=Broca.Sensitivity(i,l(k)) 
-    end
-end
-% 
-% (indMax_Sensitivity_Broca)
-% indMax_Sensitivity_Broca(1,[2, 3, 12, 24, 25, 31])
-% FP_Wada_left.Method_2_Broca(
-% 
-% [Max_Sensitivity_Broca, indMax_Sensitivity_Broca]=max(Broca.Sensitivity);
-% for i=1:32   
-% Rel_specificity(i)=Broca.Specificity(indMax_Sensitivity_Broca(i),i)
-% end
-% J_Broca=Max_Sensitivity_Broca+Rel_specificity-1 % Youden's Index
-% 
-% for i=1:length(indMax_Sensitivity_Broca)
-%     CuttOffValue_Sens_maximized_Broca(i)=CutOffsAll(indMax_Sensitivity_Broca(i))
-% end
-
-end
-
 
 
 function plotROC (Broca, Wernicke, Method, CutOffsAll)
@@ -173,6 +63,23 @@ Max_Wernicke_Spec=max(Wernicke.Specificity)
 [row, column]=find(Broca.Sensitivity==1)
 Broca.Specificity(row, column)
 
+% Plot four best methods (Rel Act):
+for i=1:4
+    ind_maxBroca=[12 24 25 31]
+    subplot(2,2,i)
+    plot(1-Broca.Specificity(:,ind_maxBroca(i)), Broca.Sensitivity(:,ind_maxBroca(i)))
+    xlim([0 1])
+    ylim([0 1])
+    hold on
+    plot(1-Wernicke.Specificity(:,ind_maxBroca(i)), Wernicke.Sensitivity(:,ind_maxBroca(i)), 'r')
+    hold on
+    % bisecting angle:
+    bistect=[0:0.1:1]
+    plot(bistect,bistect, 'k')
+    xlabel('1 - Specificity');
+    ylabel('Sensitvity');   
+%     title(Method{12})
+end
 
 Youden_Broca=Broca.Sensitivity+Broca.Specificity-1
 [MaxYouden_Broca MaxYouden_BrocaInd]=max(Youden_Broca)
@@ -557,7 +464,7 @@ switch LineIndex
 end
 
 
-function [FalseClass, corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical (values, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV, FalseClass)
+function [corClass, Sensitivity, Specificity, PPV, NPV]=classification_incl_sensitivity_atypical (values, CutOff, sizeCutOffsAll, IntCutOffs, corClass, Sensitivity, Specificity, PPV, NPV)
 
     CutOff_left=CutOff;
     CutOff_right=CutOff*(-1);
@@ -612,7 +519,7 @@ function [FalseClass, corClass, Sensitivity, Specificity, PPV, NPV]=classificati
   % Wada): 
  [corClass] = classification_dominance (result_wada, pat_wada, 'left', corClass, CutOff, IntCutOffs) 
  [corClass] = classification_dominance (result_wada, pat_wada, 'right', corClass, CutOff, IntCutOffs) 
- [FalseClass, Sensitivity, Specificity, PPV, NPV]=sensitivity (corClass, pat_wada, result_wada, CutOff, sizeCutOffsAll, IntCutOffs, Sensitivity, Specificity, PPV, NPV, FalseClass)
+ [Sensitivity, Specificity, PPV, NPV]=sensitivity (corClass, pat_wada, result_wada, CutOff, sizeCutOffsAll, IntCutOffs, Sensitivity, Specificity, PPV, NPV)
 
 end
 
@@ -629,7 +536,7 @@ end
 
 
 
-function [FalseClass, Sensitivity, Specificity, PPV, NPV]=sensitivity (corClass,  pat_wada, result_wada, CutOff, sizeCutOffsAll, IntCutOffs, Sensitivity, Specificity, PPV, NPV, FalseClass)
+function [Sensitivity, Specificity, PPV, NPV]=sensitivity (corClass,  pat_wada, result_wada, CutOff, sizeCutOffsAll, IntCutOffs, Sensitivity, Specificity, PPV, NPV)
 
     % corrClass: column 1: correct classified total, column 2: correct
     % classified left wada; column 3: correct classified atypical patients
@@ -647,15 +554,13 @@ function [FalseClass, Sensitivity, Specificity, PPV, NPV]=sensitivity (corClass,
         [ind_rightwada]=ismember(result_wada, 'right')
         LIs_Wada_right=pat_wada.data(find(ind_rightwada==1), i);
         
-        TP = sum(LIs_Wada_right<CuffOff_left); % True positive,  all patients detected as atypical by fMRI that have atypical Wada test
-        FN = sum(LIs_Wada_right>=CuffOff_left);    %natypical-TP;   % false negative
+        TP = sum(LIs_Wada_right<=CutOff_right); % True positive,  all patients detected as right lateralized by MEG that have atypical Wada test
+        FN = sum(LIs_Wada_right>CutOff_right);    %False negative, rechtslaterale, deren LI größer ist als CutOff rechts
         TN = corClass.left.cases(IntCutOffs,i,1); % True negative, all patients with left fMRI that also have left wada test
-        FP = sum(LIs_Wada_left<CuffOff_left)       %       nleft-TN;       % False positive
+        FP = sum(LIs_Wada_left<=CutOff_right)      % False positive
         Sensitivity(IntCutOffs,i,1) = (TP/(TP+FN));
         Specificity(IntCutOffs,i,1) = (TN/(FP+TN));
         PPV(IntCutOffs, i,1) = TP/(TP+FP);     % positive predictive value
         NPV(IntCutOffs, i,1) = TN/(TN+FN);     % negative predictive value
-        FalseClass.FN_Wada_right(i, IntCutOffs,1:FN)=find(LIs_Wada_right>=CuffOff_left);
-        FalseClass.FP_Wada_left(i, IntCutOffs,1:FP)=find(LIs_Wada_left<CuffOff_left);
     end
 end

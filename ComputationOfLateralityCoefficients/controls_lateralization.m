@@ -1,18 +1,38 @@
 
 function [NBroca,NWernicke,Class_Broca,Class_Wernicke]=Threshold(LIs_rawdata)
     group='controls'; % only works for controls
-    Thr=0.25           % change!
-         
+    Thr=0:0.05:0.6           % change!
+       
     [LIs_rawdata]=createDataMatrix(group)
-
-    [Lat_Broca]=leftlat(LIs_rawdata.Broca, Thr)
-    
+    k=1
+    corClass=[];
+    for Cutpoint=Thr
+        [corClass]=leftlat(LIs_rawdata.Broca, Cutpoint,k, corClass)
+        k=k+1
+    end
+    Lat_Broca=corClass;
+    corClass=[];
     % Das gleiche für Wernicke:
-    [Lat_Wernicke]=leftlat(LIs_rawdata.Wernicke, Thr)
-   
+    k=1
+    for Cutpoint=Thr
+        [corClass]=leftlat(LIs_rawdata.Wernicke, Cutpoint, k, corClass)
+        k=k+1
+    end
+    Lat_Wernicke=corClass;
      % finds N with no activation (out of N=24):
     [No_Act]=findNoAct(LIs_rawdata) 
+    
+    BestMethod(Lat_Broca, Lat_Wernicke)
+    
 end
+
+function BestMethod(Lat_Broca, Lat_Wernicke)
+%
+Method=Lat_Broca(:, :, 1) %change
+
+
+end
+
 
 function [No_Act]=findNoAct(LIs_rawdata)
 
@@ -332,18 +352,13 @@ switch LineIndex
 end
 
 
-function [corClass]=leftlat(data, Thr)
-
+function [corClass]=leftlat(data, Cutpoint, k, corClass)
 
 for i=1:size(data,2)
-right(i)=sum(data(:,i)<=-Thr)
-left(i)=sum(data(:,i)>=Thr)
-bil(i)=sum(data(:,i)<Thr & data(:,i)>-Thr)
+right(k, i)=sum(data(:,i)<=-Cutpoint)
+left(k, i)=sum(data(:,i)>=Cutpoint)
+bil(k, i)=sum(data(:,i)<Cutpoint & data(:,i)>-Cutpoint)
 
-corClass(i,1:3)=[left(i) right(i) bil(i)]
+corClass(k, i,1:3)=[left(k, i) right(k, i) bil(k, i)]
 end
-
-
-
-
 end
